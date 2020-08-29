@@ -3,7 +3,11 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>나만의 할일 목록을 체크</title>
+
+        <meta property="og:title" content="나만의 할일 목록 만들기"/>
+        <meta property="og:description" content="Daily To do list를 통해 생산성을 높이세요"/>
+        <meta property="og:image" content="{{ url_for('static', filename='businessman.jpg') }}"/>
+
         <!--        드래그 앤 드랍 -->
         <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
         <link rel="stylesheet" href="/resources/demos/style.css">
@@ -55,6 +59,7 @@
             });
 
 
+
             function sendTodo() {
                 var todo = $("#todo_input").val();
                 $.ajax({
@@ -63,7 +68,8 @@
                     data: {"todo_give": todo},
                     success: function (response) {
                         if (response['result'] == 'success') {
-                            alert('추가완료!')
+
+                            // alert('추가완료!')
                             window.location.reload()
                         }
                     }
@@ -84,11 +90,27 @@
                     success: function (response) {
                         let todoList = response["todo_list"]
 
+
                         for (let i = 0; i < todoList.length; i++) {
                             let todoThing = todoList[i]
                             let toDo = todoThing['todo']
+                            let done = todoThing['done']
+
+
                             // data-id는 HTML 태그에 data-id라는 변수를 물리는 거고 그 값은 db에 저장되는 id값을 불러오도록 처리한게 아래 줄임.
-                            let tempHtml = `<ul class="sortable" data-id="${todoThing['_id']}">
+                            if (done == true) {
+                                let tempHtml = `<ul class="sortable" data-id="${todoThing['_id']}">
+                                            <li class="completed">
+                                            <div class="form-check"><label class="form-check-label"> <input
+                                                    class="checkbox" type="checkbox" checked=""> ${toDo} <i class="input-helper"></i></label></div>
+                                            <i class="remove mdi mdi-close-circle-outline"></i>
+                                        </li>
+                                        </ul>`
+
+                                $('#inputBox').append(tempHtml)
+                            }
+                            else {
+                                let tempHtml = `<ul class="sortable" data-id="${todoThing['_id']}">
                                             <li class="ui-state-default">
                                             <div class="form-check"><label class="form-check-label"> <input
                                                     class="checkbox" type="checkbox"> ${toDo} <i class="input-helper"></i></label></div>
@@ -97,6 +119,8 @@
                                         </ul>`
 
                             $('#inputBox').append(tempHtml)
+                            }
+
                         }
 
                     }
@@ -123,8 +147,10 @@
                     todoListItem.on('change', '.checkbox', function () {
                         if ($(this).attr('checked')) {
                             $(this).removeAttr('checked');
+                            $('#inputBox').append($(this).parent().parent().parent().parent());
+
                             var id = $(this).parent().parent().parent().parent().data('id');
-                            alert(id)
+                            // alert(id)
                             $.ajax({
                                 type: "POST",
                                 url: "/todo_list/undone",
@@ -133,21 +159,21 @@
                                     if (response['result'] == 'success') {
 
 
-
                                     }
                                 }
                             });
                         } else {
                             $(this).attr('checked', 'checked');
+
+                            $('#inputBox').prepend($(this).parent().parent().parent().parent());
                             var id = $(this).parent().parent().parent().parent().data('id');
-                            alert(id)
+
                             $.ajax({
                                 type: "POST",
                                 url: "/todo_list/done",
                                 data: {'id_give': id},
                                 success: function (response) {
                                     if (response['result'] == 'success') {
-
 
 
                                     }
@@ -205,7 +231,7 @@
                                                                               aria-haspopup="true"
                                                                               aria-expanded="false"><img id="logo"
                                                                                                          src="https://i.imgur.com/K7Nwq4V.jpg">
-                &nbsp;&nbsp;&nbsp;Acme Inc<span class="dropdown-toggle"></span></a>
+                &nbsp;&nbsp;&nbsp;Category<span class="dropdown-toggle"></span></a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown"><a class="dropdown-item"
                                                                                href="#">Action1</a> <a
                         class="dropdown-item" href="#">Action2</a> <a class="dropdown-item" href="#">Action3</a> <a
@@ -216,13 +242,13 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav">
                         <li class="nav-item active"><a class="nav-link" href="#"><span class="fa fa-folder"></span>
-                            Programs</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#"><span class="fa fa-group"></span> Users</a>
+                            What To Do</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#"><span class="fa fa-group"></span> History</a>
                         </li>
                         <li class="nav-item"><a class="nav-link" href="#"><span class="fa fa-microphone"></span>
-                            Coaching</a></li>
+                            Our Brand</a></li>
                         <li class="nav-item"><a class="nav-link" href="#"><span class="fa fa-bar-chart"></span>
-                            Analytics</a></li>
+                            FAQ</a></li>
                     </ul>
                 </div>
             </nav>
@@ -237,12 +263,12 @@
                     <div class="col-lg-12">
                         <div class="card px-3">
                             <div class="card-body">
-                                <h4 class="card-title">Awesome Todo list</h4>
+                                <h4 class="card-title">Daily Todo list</h4>
                                 <div class="add-items d-flex"><input id="todo_input" type="text"
                                                                      class="form-control todo-list-input"
-                                                                     placeholder="What do you need to do today?">
+                                                                     placeholder="오늘의 할 일이 무엇인가요?">
                                     <button onclick="sendTodo()"
-                                            class="add btn btn-primary font-weight-bold todo-list-add-btn">Add
+                                            class="add btn btn-primary font-weight-bold todo-list-add-btn">추가!
                                     </button>
                                 </div>
                                 <div class="list-wrapper">

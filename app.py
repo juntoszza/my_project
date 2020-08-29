@@ -47,6 +47,9 @@ def read_todo():
     end = datetime.datetime(year, month, day+1)
     result =[]
     todo_list = list(db.todo_list.find({'date': {'$gte': start,'$lt': end}}).sort([("done", -1), ("order", 1)]))
+
+
+
     for todo in todo_list:
         result.append({
             '_id': str(todo['_id']),
@@ -70,17 +73,18 @@ def delete_todo():
 
 @app.route('/todo_list/done', methods=['POST'])
 def done_todo():
-    print(request.form)
+    # print(request.form)
     id_receive = request.form['id_give']
     db.todo_list.update_one({'_id': ObjectId(id_receive)},{'$set':{'done': True}})
     return jsonify({'result': 'success'})
 
 @app.route('/todo_list/undone', methods=['POST'])
 def undone_todo():
-    print(request.form)
+    # print(request.form)
     id_receive = request.form['id_give']
     db.todo_list.update_one({'_id': ObjectId(id_receive)},{'$set':{'done': False}})
     return jsonify({'result': 'success'})
+
 
 if __name__ == '__main__':
     app.run('0.0.0.0', port=5000, debug=True)
